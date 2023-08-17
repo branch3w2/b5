@@ -1,0 +1,590 @@
+if syntaxcheck then return end
+if TrainerOrigin == nil then showMessage("Bruh ! Open Menu from Wicked Menu .CT file FFS") end
+--======================================================--
+
+--======================================================--
+--Cheat Engine--
+--Dark Mode--
+--Delete Block of text below to remove Dark Mode--
+
+getMainForm().color=0x222222
+getMainForm().Foundlist3.Color=0x222222
+GetAddressList().Control[0].BackgroundColor=0x222222
+getMainForm().Panel1.Color=0x222222
+getMainForm().Panel2.Color=0x222222
+getMainForm().Panel3.Color=0x222222
+getMainForm().Panel4.Color=0x222222
+getMainForm().Panel5.Color=0x222222
+getMainForm().Panel6.Color=0x222222
+getMainForm().Panel7.Color=0x222222
+getMainForm().Panel8.Color=0x222222
+getMainForm().Panel9.Color=0x222222
+getMainForm().Panel10.Color=0x222222
+
+
+--===========================================================--
+--Dark Mode Ends here --
+--======================================================--
+--Delete Above only to Remove Dark mode and return to default color --
+
+function CETrainer_CEButton1Click(sender)
+
+end
+local function userPressedKey(sender, key)
+  if userDefinedKeys[5]==0 then
+    for i=1,5 do
+      if userDefinedKeys[i]==0 then
+        userDefinedKeys[i]=key
+        break
+      else
+        if userDefinedKeys[i]==key then break end
+      end
+    end
+  end
+
+  changeHotkeyKeysForm.CEEdit1.Text=convertKeyComboToString(userDefinedKeys)
+  return 0
+end
+
+local function clearHotkey()
+  userDefinedKeys={0,0,0,0,0}
+  changeHotkeyKeysForm.CEEdit1.Text=convertKeyComboToString(userDefinedKeys)
+  changeHotkeyKeysForm.CEEdit1.setFocus()
+end
+
+local function formCreate()
+  changeHotkeyKeysForm=createForm(false)
+  changeHotkeyKeysForm.Name = 'changeHotkeyKeysForm'
+  changeHotkeyKeysForm.Caption = 'Hotkey Manually Set'
+  changeHotkeyKeysForm.Width = 300
+  changeHotkeyKeysForm.Height = 120
+  changeHotkeyKeysForm.Position = poScreenCenter
+  changeHotkeyKeysForm.OnClose =
+     function ()
+       changeHotkeyKeysForm.CEEdit1.setFocus()
+       return caHide
+     end
+
+  local CELabel1=createLabel(changeHotkeyKeysForm)
+  CELabel1.Name = 'CELabel1'
+  CELabel1.Left = 20
+  CELabel1.Top = 20
+  CELabel1.Caption = 'Set hotkey:'
+
+  local CEEdit1=createEdit(changeHotkeyKeysForm)
+  CEEdit1.Name = 'CEEdit1'
+  CEEdit1.Text = ''
+  CEEdit1.AnchorSideLeft.Control = CELabel1
+  CEEdit1.AnchorSideTop.Control = CELabel1
+  CEEdit1.AnchorSideTop.Side = asrBottom
+  CEEdit1.Height = 25
+  CEEdit1.Width = 248
+  CEEdit1.BorderSpacing.Top = 4
+
+  local clearButton=createButton(changeHotkeyKeysForm)
+  clearButton.Name = 'clearButton'
+  clearButton.AnchorSideLeft.Control = CEEdit1
+  clearButton.AnchorSideTop.Control = CEEdit1
+  clearButton.AnchorSideTop.Side = asrBottom
+  clearButton.Height = 30
+  clearButton.Width = 80
+  clearButton.BorderSpacing.Top = 8
+  clearButton.Caption = 'Clear'
+
+  local applyButton=createButton(changeHotkeyKeysForm)
+  applyButton.Name = 'applyButton'
+  applyButton.AnchorSideLeft.Control = clearButton
+  applyButton.AnchorSideLeft.Side = asrBottom
+  applyButton.AnchorSideTop.Control = clearButton
+  applyButton.Height = 30
+  applyButton.Width = 80
+  applyButton.BorderSpacing.Left = 10
+  applyButton.Caption = 'Apply'
+
+  CEEdit1.OnKeyDown = userPressedKey
+  local mbtn={false,true,true,true}
+  CEEdit1.OnMouseDown = function (s,k) if mbtn[k] then s.OnKeyDown(s,k+2) end end
+  clearButton.OnClick = clearHotkey    -- clear button
+  applyButton.ModalResult = mrYes      -- apply button
+end
+
+function changeHotkeyKeys(hotkey)
+  if not changeHotkeyKeysFormCreated then
+    changeHotkeyKeysFormCreated = true
+    formCreate()
+  end
+
+  if hotkey==nil then return end
+
+  userDefinedKeys={0,0,0,0,0}
+
+  if hotkey.ClassName=='TGenericHotkey' then
+    for i,v in ipairs({hotkey.getKeys()}) do
+      userDefinedKeys[i]=v
+    end
+
+    changeHotkeyKeysForm.CEEdit1.Text=convertKeyComboToString(userDefinedKeys)
+
+    if changeHotkeyKeysForm.showModal()==mrYes then
+      hotkey.setKeys(userDefinedKeys[1],userDefinedKeys[2],
+                     userDefinedKeys[3],userDefinedKeys[4],
+                     userDefinedKeys[5])
+    end
+
+  elseif hotkey.ClassName=='TMemoryRecordHotkey' then
+    for i,v in ipairs(hotkey.Keys) do
+      userDefinedKeys[i]=v
+    end
+
+    changeHotkeyKeysForm.CEEdit1.Text=convertKeyComboToString(userDefinedKeys)
+
+    if changeHotkeyKeysForm.showModal()==mrYes then
+      hotkey.Keys = userDefinedKeys
+    end
+
+  end
+
+end
+
+
+function addChangeHotkeyKeysFunctionality(object1, object2)
+  if (type(object1)=='userdata') and (object1.ClassName=='tcheat') and (object2.ClassName=='TMemoryRecordHotkey') then
+    local btn = createButton(object1.Owner)
+    btn.Parent = object1.Parent
+    btn.AnchorSideLeft.Control = object1
+    btn.AnchorSideTop.Control = object1
+    btn.Height = object1.Height
+    btn.Width = 15
+    btn.BorderSpacing.Left = object1.Descriptionleft - 20
+    btn.Caption = 'X'
+    btn.OnClick = function () changeHotkeyKeys(object2) object1.Hotkey = object2.HotkeyString end
+  end
+end
+
+
+--TRAINERGENERATORSTART--
+--This is autogenerated code. Changing code in this block will
+--get erased and rewritten if you regenerate the trainer code
+--ShowHotkeys
+function GetHotkeys()
+local mr = getAddressList()
+local _GetHotKeys = ""
+if mr.Count > 0 then
+local _KeyCode = {[1]="LBUTTON",[2]="RBUTTON",[5]="XBUTTON1",[6]="XBUTTON2",[3]="CANCEL",[4]="MBUTTON",[8]="BACK",[9]="TAB",[12]="CLEAR",[13]="RETURN",[16]="SHIFT",[17]="CONTROL",[18]="ALT",[19]="PAUSE",[20]="CAPITAL",[27]="ESCAPE",[32]="SPACE",[33]="PRIOR",[34]="NEXT",[35]="END",[36]="HOME",[37]="LEFT",[38]="UP",[39]="RIGHT",[40]="DOWN",[41]="SELECT",[42]="PRINT",[43]="EXECUTE",[44]="SNAPSHOT",[45]="INSERT",[46]="DELETE",[47]="HELP",[48]="0",[49]="1",[50]="2",[51]="3",[52]="4",[53]="5",[54]="6",[55]="7",[56]="8",[57]="9",[65]="A",[66]="B",[67]="C",[68]="D",[69]="E",[70]="F",[71]="G",[72]="H",[73]="I",[74]="J",[75]="K",[76]="L",[77]="M",[78]="N",[79]="O",[80]="P",[81]="Q",[82]="R",[83]="S",[84]="T",[85]="U",[86]="V",[87]="W",[88]="X",[89]="Y",[90]="Z",[91]="LWIN",[92]="RWIN",[93]="APPS",[96]="NUMPAD0",[97]="NUMPAD1",[98]="NUMPAD2",[99]="NUMPAD3",[100]="NUMPAD4",[101]="NUMPAD5",[102]="NUMPAD6",[103]="NUMPAD7",[104]="NUMPAD8",[105]="NUMPAD9",[106]="MULTIPLY",[107]="ADD",[108]="SEPARATOR",[109]="SUBTRACT",[110]="DECIMAL",[111]="DIVIDE",[112]="F1",[113]="F2",[114]="F3",[115]="F4",[116]="F5",[117]="F6",[118]="F7",[119]="F8",[120]="F9",[121]="F10",[122]="F11",[123]="F12",[124]="F13",[125]="F14",[126]="F15",[127]="F16",[128]="F17",[129]="F18",[130]="F19",[131]="F20",[132]="F21",[133]="F22",[134]="F23",[135]="F24",[144]="NUMLOCK",[145]="SCROLL",[160]="LSHIFT",[162]="LCONTROL",[164]="LALT",[161]="RSHIFT",[163]="RCONTROL",[165]="RALT"}
+for _Record = 0, mr.Count-1 do
+local _keyCount = mr[_Record].HotkeyCount
+if _keyCount > 0 then
+local _HotKeys = ""
+for _Hotkey = 0, _keyCount - 1 do
+local _Keys = ""
+for _Modifiers = 1, #mr[_Record].Hotkey[_Hotkey].Keys do
+if _KeyCode[mr[_Record].Hotkey[_Hotkey].Keys[_Modifiers]] ~= nil then
+_Keys = (_Modifiers == 1 and '' or _Keys.."+").._KeyCode[mr[_Record].Hotkey[_Hotkey].Keys[_Modifiers]]
+else
+_Keys = (_Modifiers == 1 and '' or _Keys.."+").."VK"..string.format("%03d",mr[_Record].Hotkey[_Hotkey].Keys[_Modifiers])
+end
+end
+_HotKeys = _HotKeys.._Keys
+end
+_GetHotKeys = _GetHotKeys..mr[_Record].getDescription()..": ".._HotKeys.."\n"
+end
+end
+end
+showMessage((#_GetHotKeys > 0) and _GetHotKeys or "No Hotkeys Found")
+end
+
+function addGetHotkeysMenu()
+if GetHotkeysalreadyexists then return end
+local parent = getMainForm().Menu.Items
+GetHotkeysitem = createMenuItem(parent)
+parent.add(GetHotkeysitem)
+GetHotkeysitem.Caption = 'Get &Hotkeys'
+GetHotkeysitem.OnClick = GetHotkeys
+GetHotkeysalreadyexists = true
+end
+
+addGetHotkeysMenu()
+
+RDRTEMP="Wicked v0.4.7 for RDO build 1491.17"
+MainForm.Panel5.visible = false
+
+MainForm.Caption = string.format('%s - (by plumbwicked#0001 @Discord)', RDRTEMP)
+
+
+function myShowMessage(title, texttoshow, time)
+ local myform = createForm(false)
+ myform.Caption = title
+ myform.BorderStyle = 'bsDialog'
+ myform.AutoSize = true
+ myform.Position = 'poScreenCenter'
+ myform.FormStyle = 'fsStayonTop'
+ myform.color = '0x00000000'
+ myform.Font.Color = 0x00FFFF
+
+ local mylabel = createLabel(myform)
+ mylabel.Caption = texttoshow
+ mylabel.BorderSpacing.Around = 30
+
+ local t=createTimer(myform)
+ t.Interval = time
+ t.OnTimer = function () myform.destroy() end
+
+ myform.show()
+end
+
+--RequiredCEVersion=7.3
+--if (getCEVersion==nil) or (getCEVersion()<RequiredCEVersion) then
+ -- messageDialog('Please install Cheat Engine '..RequiredCEVersion, mtError, mbOK)
+ -- closeCE()
+--end
+addresslist=getAddressList()
+--memrec54=addresslist.getMemoryRecordByID(54)
+memrec289=addresslist.getMemoryRecordByID(289)
+memrec60=addresslist.getMemoryRecordByID(60)
+memrec21760=addresslist.getMemoryRecordByID(21760)
+memrec17218=addresslist.getMemoryRecordByID(17218)
+memrec149=addresslist.getMemoryRecordByID(149)
+memrec143=addresslist.getMemoryRecordByID(143)
+memrec16404=addresslist.getMemoryRecordByID(16404)
+memrec16405=addresslist.getMemoryRecordByID(16405)
+memrec252=addresslist.getMemoryRecordByID(252)
+memrec151=addresslist.getMemoryRecordByID(151)
+memrec137=addresslist.getMemoryRecordByID(137)
+memrec16315=addresslist.getMemoryRecordByID(16315)
+memrec16316=addresslist.getMemoryRecordByID(16316)
+--memrec54_hotkey0=memrec54.getHotkeyByID(0)
+memrec289_hotkey0=memrec289.getHotkeyByID(0)
+memrec60_hotkey0=memrec60.getHotkeyByID(0)
+memrec21760_hotkey0=memrec21760.getHotkeyByID(0)
+memrec17218_hotkey0=memrec17218.getHotkeyByID(0)
+memrec149_hotkey0=memrec149.getHotkeyByID(0)
+memrec149_hotkey1=memrec149.getHotkeyByID(1)
+memrec143_hotkey0=memrec143.getHotkeyByID(0)
+memrec143_hotkey1=memrec143.getHotkeyByID(1)
+memrec16404_hotkey0=memrec16404.getHotkeyByID(0)
+memrec16404_hotkey1=memrec16404.getHotkeyByID(1)
+memrec16405_hotkey0=memrec16405.getHotkeyByID(0)
+memrec16405_hotkey1=memrec16405.getHotkeyByID(1)
+memrec252_hotkey0=memrec252.getHotkeyByID(0)
+memrec252_hotkey1=memrec252.getHotkeyByID(1)
+memrec151_hotkey0=memrec151.getHotkeyByID(0)
+memrec151_hotkey1=memrec151.getHotkeyByID(1)
+memrec137_hotkey0=memrec137.getHotkeyByID(0)
+memrec137_hotkey1=memrec137.getHotkeyByID(1)
+memrec16315_hotkey0=memrec16315.getHotkeyByID(0)
+memrec16316_hotkey0=memrec16316.getHotkeyByID(0)
+
+function onPostHotkey0(Hotkey)
+  --Executed after the "toggle*" cheat got executed
+  local memrec=Hotkey.Owner
+  local isActive=memrec.Active --get the state after the hotkey got triggered
+  CETrainer.CHEAT0.setActive(isActive) --gui update, nothing else
+  if gPlaySoundOnAction then
+    if isActive then
+      playSound(gActivateSound)
+    else
+      playSound(gDeactivateSound)
+    end
+  end
+end
+
+memrec289_hotkey0.onPostHotkey=onPostHotkey0
+
+function onPostHotkey1(Hotkey)
+  --Executed after the "toggle*" cheat got executed
+  local memrec=Hotkey.Owner
+  local isActive=memrec.Active --get the state after the hotkey got triggered
+  CETrainer.CHEAT1.setActive(isActive) --gui update, nothing else
+  if gPlaySoundOnAction then
+    if isActive then
+      playSound(gActivateSound)
+    else
+      playSound(gDeactivateSound)
+    end
+  end
+end
+
+memrec60_hotkey0.onPostHotkey=onPostHotkey1
+
+function onPostHotkey2(Hotkey)
+  --Executed after the "toggle*" cheat got executed
+  local memrec=Hotkey.Owner
+  local isActive=memrec.Active --get the state after the hotkey got triggered
+  CETrainer.CHEAT2.setActive(isActive) --gui update, nothing else
+  if gPlaySoundOnAction then
+    if isActive then
+      playSound(gActivateSound)
+    else
+      playSound(gDeactivateSound)
+    end
+  end
+end
+
+memrec21760_hotkey0.onPostHotkey=onPostHotkey2
+
+function onPostHotkey3(Hotkey)
+  --Executed after the "toggle*" cheat got executed
+  local memrec=Hotkey.Owner
+  local isActive=memrec.Active --get the state after the hotkey got triggered
+  CETrainer.CHEAT3.setActive(isActive) --gui update, nothing else
+  if gPlaySoundOnAction then
+    if isActive then
+      playSound(gActivateSound)
+    else
+      playSound(gDeactivateSound)
+    end
+  end
+end
+
+memrec17218_hotkey0.onPostHotkey=onPostHotkey3
+
+function onHotkey4(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT4.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec149_hotkey0.onHotkey=onHotkey4
+function onHotkey5(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT5.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec149_hotkey1.onHotkey=onHotkey5
+function onHotkey6(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT6.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec143_hotkey0.onHotkey=onHotkey6
+function onHotkey7(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT7.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec143_hotkey1.onHotkey=onHotkey7
+function onHotkey8(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT8.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec16404_hotkey0.onHotkey=onHotkey8
+function onHotkey9(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT9.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec16404_hotkey1.onHotkey=onHotkey9
+function onHotkey10(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT10.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec16405_hotkey0.onHotkey=onHotkey10
+function onHotkey11(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT11.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec16405_hotkey1.onHotkey=onHotkey11
+function onHotkey12(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT12.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec252_hotkey0.onHotkey=onHotkey12
+function onHotkey13(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT13.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec252_hotkey1.onHotkey=onHotkey13
+function onHotkey14(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT14.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec151_hotkey0.onHotkey=onHotkey14
+function onHotkey15(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT15.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec151_hotkey1.onHotkey=onHotkey15
+function onHotkey16(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT16.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec137_hotkey0.onHotkey=onHotkey16
+function onHotkey17(Hotkey)
+  --Executed before the hotkey is handled
+  CETrainer.CHEAT17.setActive(true, 1500)
+  if gPlaySoundOnAction then
+    playSound(gActivateSound)
+  end
+end
+
+memrec137_hotkey1.onHotkey=onHotkey17
+function onPostHotkey18(Hotkey)
+  --Executed after the "toggle*" cheat got executed
+  local memrec=Hotkey.Owner
+  local isActive=memrec.Active --get the state after the hotkey got triggered
+  CETrainer.CHEAT18.setActive(isActive) --gui update, nothing else
+  if gPlaySoundOnAction then
+    if isActive then
+      playSound(gActivateSound)
+    else
+      playSound(gDeactivateSound)
+    end
+  end
+end
+
+memrec16315_hotkey0.onPostHotkey=onPostHotkey18
+
+function onPostHotkey19(Hotkey)
+  --Executed after the "toggle*" cheat got executed
+  local memrec=Hotkey.Owner
+  local isActive=memrec.Active --get the state after the hotkey got triggered
+  CETrainer.CHEAT19.setActive(isActive) --gui update, nothing else
+  if gPlaySoundOnAction then
+    if isActive then
+      playSound(gActivateSound)
+    else
+      playSound(gDeactivateSound)
+    end
+  end
+end
+
+memrec16316_hotkey0.onPostHotkey=onPostHotkey19
+
+--function onPostHotkey0(Hotkey)
+  --Executed after the "toggle*" cheat got executed
+ -- local memrec=Hotkey.Owner
+ -- local isActive=memrec.Active --get the state after the hotkey got triggered
+ -- CETrainer.CHEAT0.setActive(isActive) --gui update, nothing else
+ -- if gPlaySoundOnAction then
+ --   if isActive then
+ --     playSound(gActivateSound)
+ --   else
+ --     playSound(gDeactivateSound)
+ --   end
+ -- end
+--end
+
+--memrec54_hotkey0.onPostHotkey=onPostHotkey0
+function myShowMessage(title, texttoshow, time)
+ local myform = createForm(false)
+ myform.Caption = title
+ myform.BorderStyle = 'bsDialog'
+ myform.AutoSize = true
+ myform.Position = 'poScreenCenter'
+ myform.FormStyle = 'fsStayonTop'
+ myform.color = '0x00000000'
+ myform.Font.Color = 0x00FFFF
+
+ local mylabel = createLabel(myform)
+ mylabel.Caption = texttoshow
+ mylabel.BorderSpacing.Around = 30
+
+ local t=createTimer(myform)
+ t.Interval = time
+ t.OnTimer = function () myform.destroy() end
+
+ myform.show()
+end
+
+
+--666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
+getAutoAttachList().add("RDR2.exe")
+gPlaySoundOnAction=false
+CETrainer.fixDPI() --remove this if you have already taken care of DPI issues yourself
+CETrainer.show()
+function AboutClick()
+  shellExecute('https://www.unknowncheats.me/forum/red-dead-redemption-2-a/372512-wicked-menu-cheat-engine.html')
+
+end
+gAboutText=[[Wicked Menu for RDR2 made by plumbwicked]]
+
+function onOpenProcess()
+  local timer = createTimer(nil, false)
+  timer.Interval = 1000
+  timer.OnTimer = function(timer)
+    local list = getAddressList()
+      local mem = list.getMemoryRecordByDescription('𝓐ᴠᴀɪʟᴀʙʟᴇ 𝓕ᴏʀ 𝓕ʀᴇᴇ ᴀᴛ 𝓤ɴᴋɴᴏᴡɴᴄʜᴇᴀᴛ𝓢')
+    mem.Active = true
+    timer.Destroy()
+  end
+  timer.Enabled = true
+end
+
+function CloseClick()
+  --called by the close button onClick event, and when closing the form
+  closeCE()
+  return caFree --onClick doesn't care, but onClose would like a result
+end
+
+--TRAINERGENERATORSTOP--
+--addChangeHotkeyKeysFunctionality(CETrainer.CHEAT0,memrec54_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT0,memrec289_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT1,memrec60_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT2,memrec21760_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT3,memrec17218_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT4,memrec149_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT5,memrec149_hotkey1)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT6,memrec143_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT7,memrec143_hotkey1)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT8,memrec16404_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT9,memrec16404_hotkey1)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT10,memrec16405_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT11,memrec16405_hotkey1)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT12,memrec252_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT13,memrec252_hotkey1)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT14,memrec151_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT15,memrec151_hotkey1)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT16,memrec137_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT17,memrec137_hotkey1)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT18,memrec16315_hotkey0)
+addChangeHotkeyKeysFunctionality(CETrainer.CHEAT19,memrec16316_hotkey0)
+
+
+
+--TRAINERGENERATORSTOP--
